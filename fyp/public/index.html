@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Art Gallery</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="#home" class="w3-bar-item w3-button w3-wide">ART GALLERY</a>
+
+    <!-- Right-sided navbar links -->
+    <div class="w3-right w3-hide-small">
+     <a href="#" class="w3-bar-item w3-button w3-wide" onclick="openLoginModal()">LOGIN/SIGN UP</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header with full-height image -->    
+
+<header class="bgimg-1 w3-display-container w3-grayscale-min" id="home"><div class="overlay"></div>
+  <div class="w3-display-left w3-text-white" style="padding:48px">
+    <span class="w3-jumbo w3-hide-small" style="font-size: 90px;"><b>Igniting Creativity</b></span><br>
+    <span class="w3-large">Start something that matters</span><br>
+    <span class="w3-large">Empower Artistic Expression to Discover Your Imagination's Infinite Potential"</span>
+</header>
+
+<!-- Pricing Section -->
+<div class="w3-container" style="padding:128px 16px" id="ongoing">
+  <h3 class="w3-center">ONGOING EXHIBITION</h3>
+
+          <a class="w3-button w3-black w3-padding-large center-button" href="/published.html"><h4>Visit</h4></a>
+      
+    </div>
+
+<!-- Login Modal-->
+<div id="loginModal" class="modal">
+  <div class="modal-content animate">
+    <span class="close" onclick="closeLoginModal()">&times;</span>
+    <form class="modal-form" action="/login" method="POST">
+      <div class="container">
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+
+        <button type="submit">Login</button>
+        </div>
+        
+        <div class="container" style="background-color:#f1f1f1">
+        <a href="register.html">Register</a>
+        <span class="password"></span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-black w3-padding-64">
+  <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+  </div>
+</footer>
+
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+//Open login modal
+function openLoginModal(){
+  document.getElementById("loginModal").style.display="block";
+}
+
+//close login modal
+function closeLoginModal(){
+  document.getElementById("loginModal").style.display="none";
+}
+
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+  } else {
+    mySidebar.style.display = 'block';
+  }
+}
+
+function logout(){
+
+}
+</script>
+<script>
+      function displayModel(data) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, .1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        document.getElementById('modelViewer').appendChild(renderer.domElement);
+
+        const loader = new THREE.GLTFLoader();
+        let model;
+        
+        const modelURL = `/model/${data._id}`;
+
+        loader.load(modelURL, (gltf) => {
+        model=gltf.scene;
+        scene.add(model);
+
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load(data.imagePath);
+        const material = new THREE.MeshStandardMaterial({map:texture});
+
+        model.traverse((child) => {
+            if(child instanceof THREE.Mesh) {
+                child.material = material;
+            }
+        });
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff,1);
+        directionalLight.position.set(1,1,1);
+        scene.add(directionalLight);
+
+        camera.position.z=5;
+
+        const controls = new THREE.PointerLockControls(camera, renderer.domElement);
+        scene.add(controls.getObject());
+
+        renderer.domElement.addEventListener('click', () => {
+          controls.lock();
+        } );
+
+        controls.addEventListener('unlock', () => {
+          renderer.domElement.removeEventListener('click', () => {
+            controls.lock();
+          });
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+        });
+    }
+</script>
+
+</body>
+</html>

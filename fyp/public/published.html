@@ -1,0 +1,397 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Art Gallery</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./style.css">
+
+<style> 
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  max-width: 80%;
+  text-align: center;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.bottom-middle {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  width: 35%;
+  transform: translateX(-50%);
+  background-color: #f0f0f0;
+  height: 10% ;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  padding: 50px;
+  border-radius: 50px 50px 0px 0px;
+  height: 100%;
+}
+
+.description-button {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="index.html" class="w3-bar-item w3-button w3-wide">ART GALLERY</a>
+        
+</div>
+</div>
+  <div id="canvas-container">
+
+
+  <div class="bottom-middle">
+    <div class="button-container">
+      <button class="description-button" id="button1" data-description-id="1">1</button>
+      <button class="description-button" id="button2" data-description-id="2">2</button>
+      <button class="description-button" id="button3" data-description-id="3">3</button>
+      <button class="description-button" id="button4" data-description-id="4">4</button>
+      <button class="description-button" id="button5" data-description-id="5">5</button>
+      <button class="description-button" id="button6" data-description-id="6">6</button>
+      <button class="description-button" id="button7" data-description-id="7">7</button>
+      <button class="description-button" id="button8" data-description-id="8">8</button>
+      <button class="description-button" id="button9" data-description-id="9">9</button>
+      <button class="description-button" id="button10"data-description-id="10">10</button>
+      <button class="description-button" id="button11"data-description-id="11">11</button>
+      <button class="description-button" id="button12"data-description-id="12">12</button>
+    </div>
+  </div>
+  
+</div>
+</div>
+</div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.131.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.131.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.131.0/examples/js/controls/PointerLockControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.131.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+  const canvasContainer = document.getElementById('canvas-container');
+  const clickableObjects = [];
+
+    // Create a scene
+    const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // Create a renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    canvasContainer.appendChild(renderer.domElement);
+
+    // Load the glTF model and add it to the scene
+    const loader = new THREE.GLTFLoader();
+
+
+    let controls = {};
+let player = {
+  height: 0.2,
+  turnSpeed: .03,
+  speed: .07,
+  jumpHeight: .2,
+  gravity: .01,
+  velocity: 0,
+  
+  jumps: false
+};
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+scene.background = new THREE.Color("white");
+document.body.appendChild(renderer.domElement);
+
+// BrowserWindow->Renderer:ResizeRe-Render
+window.addEventListener('resize', () => {
+  let w = window.innerWidth,
+      h = window.innerHeight;
+  
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+});
+
+// Camera:Setup
+camera.position.set(0, player.height, -0.2);
+camera.lookAt(new THREE.Vector3(0, player.height, 0));
+
+    // Call this function to update the 3D scene when new glTF data is received
+    function update3DScene(gltfData) {
+      const gltfLoader = new THREE.GLTFLoader();
+      gltfLoader.parse(gltfData, '', (gltf) => {
+        scene.clear();
+        scene.add(gltf.scene);
+
+        gltf.scene.traverse((node) => {
+      if (node.isMesh) {
+
+        // Assuming you have a specific texture/material you want to make clickable
+        if (node.material.map) {
+          const originalMaterial = node.material;
+          const clickablePlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1), // Adjust size as needed
+            new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
+          );
+          clickablePlane.position.copy(node.position);
+          clickableObjects.push({ mesh: clickablePlane, originalMaterial }); // Store original material with clickable object
+          scene.add(clickablePlane);
+
+             // Add event listeners for hover interactions
+      clickablePlane.addEventListener('mouseenter', () => {
+        node.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Change material on hover
+      });
+
+      clickablePlane.addEventListener('mouseleave', () => {
+        node.material = originalMaterial; // Revert material on mouse leave
+      });
+        }
+      }
+    });
+  });
+}
+
+
+// Object:Light:1
+let light1 = new THREE.PointLight("white", .8);
+light1.position.set(0, 3, 0);
+light1.castShadow = true;
+light1.shadow.camera.near = 2.5;
+scene.add(light1);
+
+// Object:Light:2
+let light2 = new THREE.AmbientLight("white", .15);
+light2.position.set(10, 2, 0);
+scene.add(light2);
+
+// Controls:Listeners
+document.addEventListener('keydown', ({ keyCode }) => { controls[keyCode] = true });
+document.addEventListener('keyup', ({ keyCode }) => { controls[keyCode] = false });
+
+// ...
+function control() {
+  // Controls:Engine 
+  if(controls[87]){ // w
+    camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
+    camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
+  }
+  if(controls[83]){ // s
+    camera.position.x += Math.sin(camera.rotation.y) * player.speed;
+    camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
+  }
+  if(controls[65]){ // a
+    camera.position.x += Math.sin(camera.rotation.y + Math.PI / 2) * player.speed;
+    camera.position.z += -Math.cos(camera.rotation.y + Math.PI / 2) * player.speed;
+  }
+  if(controls[68]){ // d
+    camera.position.x += Math.sin(camera.rotation.y - Math.PI / 2) * player.speed;
+    camera.position.z += -Math.cos(camera.rotation.y - Math.PI / 2) * player.speed;
+  }
+  if(controls[37]){ // la
+    camera.rotation.y -= player.turnSpeed;
+  }
+  if(controls[39]){ // ra
+    camera.rotation.y += player.turnSpeed;
+  }
+  if(controls[32]) { // space
+    if(player.jumps) return false;
+    player.jumps = true;
+    player.velocity = -player.jumpHeight;
+  }
+}
+
+function ixMovementUpdate() {
+  player.velocity += player.gravity;
+  camera.position.y -= player.velocity;
+  
+  if(camera.position.y < player.height) {
+    camera.position.y = player.height;
+    player.jumps = false;
+  }
+}
+
+const descriptionContainer = document.getElementById("descriptionContainer");
+
+document.getElementById("button1").addEventListener("click", () => {
+  showDescription("Xu Minghao Going Seventeen");
+});
+
+document.getElementById("button2").addEventListener("click", () => {
+  showDescription("superb");
+});
+
+document.getElementById("button3").addEventListener("click", () => {
+  showDescription("awesome");
+});
+
+document.getElementById("button4").addEventListener("click", () => {
+  showDescription("wow");
+});
+
+document.getElementById("button5").addEventListener("click", () => {
+  showDescription("hoho");
+});
+
+document.getElementById("button6").addEventListener("click", () => {
+  showDescription("wonderful");
+});
+
+document.getElementById("button7").addEventListener("click", () => {
+  showDescription("crazy");
+});
+
+document.getElementById("button8").addEventListener("click", () => {
+  showDescription("splendid");
+});
+
+document.getElementById("button9").addEventListener("click", () => {
+  showDescription("craycray");
+});
+
+document.getElementById("button10").addEventListener("click", () => {
+  showDescription("maniac");
+});
+
+document.getElementById("button11").addEventListener("click", () => {
+  showDescription("monster");
+});
+
+document.getElementById("button12").addEventListener("click", () => {
+  showDescription("blast");
+});
+
+
+function closePopup() {
+  const popup = document.querySelector(".popup");
+  if (popup) {
+    document.body.removeChild(popup);
+  }
+}
+
+function openPopup(description) {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.innerHTML = `
+    <div class="popup-content">
+      <span class="close" onclick="closePopup()">&times;</span>
+      <p>${description}</p>
+    </div>
+  `;
+  document.body.appendChild(popup);
+}
+
+function showDescription(description) {
+   openPopup(description)
+}
+
+function closePopup() {
+  const popup = document.querySelector(".popup");
+  if (popup) {
+    document.body.removeChild(popup);
+  }
+}
+
+function update() {
+  control();
+  ixMovementUpdate();
+
+}
+
+function render() {
+  renderer.render(scene, camera);
+}
+
+function loop() {
+  requestAnimationFrame(loop);
+  update();
+  render();
+}
+
+loop();
+
+
+    // Function to establish a connection to the SSE endpoint
+    function connectToServerSentEvents() {
+      // Check if the browser supports Server-Sent Events
+      if (typeof(EventSource) !== "undefined") {
+        // Create a new EventSource to connect to the SSE endpoint
+        const eventSource = new EventSource('/get_latest_gltf');
+
+        // Event listener to handle incoming messages from the server
+        eventSource.onmessage = function(event) {
+        
+          // Parse the JSON data received from the server
+          const eventData = JSON.parse(event.data);
+
+        // Call the update3DScene function with the glTF data
+        update3DScene(eventData.gltfData);
+        };
+
+        // Event listener to handle connection errors
+        eventSource.onerror = function(event) {
+          console.error('Error connecting to Server-Sent Events:', event);
+          // Close the connection to the SSE endpoint
+          eventSource.close();
+        };
+      } else {
+        console.error('Your browser does not support Server-Sent Events.');
+      }
+    }
+
+    // Call the connectToServerSentEvents function to establish the SSE connection
+    connectToServerSentEvents();
+
+        // Animation loop
+        function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+  </script>
+
+</body>
+</html>

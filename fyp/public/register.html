@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+  
+  <form id="registration-form" class="modal-content animate" action="/register" method="POST">
+ 
+    <div class="container">
+      <h4>Regsitration Form</h4>
+
+      <label for="fname"><b>First Name</b></label>
+      <input type="text" placeholder="Enter First Name" name="fname" id="fname" required>
+      <p></p>
+
+      <label for="lname"><b>Last Name</b></label>
+      <input type="text" placeholder="Enter Last Name" name="lname" id="lname" required>
+      <p></p>
+
+      <label for="email"><b>Email</b></label>
+      <input type="text" placeholder="Enter Email" name="email" id="email" required>
+      <p id="email-error" class="error-message"></p>
+
+      <label for="username"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" id="username" required>
+      <p id="username-error" class="error-message"></p>
+
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" id="password" required>
+      <p></p>
+      
+      <button type="submit">Register</button>
+    </div>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const registrationForm = document.getElementById("registration-form");
+  
+      registrationForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+  
+        const formData = new FormData(registrationForm);
+        const formObject = {};
+        formData.forEach((value, key) => {
+          formObject[key] = value;
+        });
+  
+        try {
+          const response = await fetch("/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formObject),
+          });
+          const data = await response.json();
+        if (response.ok) {
+          alert(data.message);
+          window.location.href = "/index.html"; // Redirect to login page
+        } else {
+          alert(data.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      });
+    });
+  </script>
+</body>
+</html>

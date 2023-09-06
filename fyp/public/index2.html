@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Art Gallery</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="index2.html" class="w3-bar-item w3-button w3-wide">ART GALLERY</a>
+    
+
+    <!-- Right-sided navbar links -->
+    <div class="w3-right w3-hide-small">
+      <div id="UserDropdown" class="dropdown">
+        <a  class="w3-bar-item w3-button w3-wide">WELCOME </a>
+        <div class="dropdown-content">
+          <a href="create.html">Create Exhibition</a>
+          <a href="index.html" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Header with full-height image -->    
+
+<header class="bgimg-1 w3-display-container w3-grayscale-min" id="home"><div class="overlay"></div>
+  <div class="w3-display-left w3-text-white" style="padding:48px">
+    <span class="w3-jumbo w3-hide-small" style="font-size: 90px;"><b>Igniting Creativity</b></span><br>
+    <span class="w3-large">Start something that matters</span><br>
+    <span class="w3-large">Empower Artistic Expression to Discover Your Imagination's Infinite Potential"</span>
+</header>
+
+<!-- Pricing Section -->
+<div class="w3-container" style="padding:128px 16px" id="ongoing">
+   <h3 class="w3-center">ONGOING EXHIBITION</h3>
+ 
+           <a class="w3-button w3-black w3-padding-large center-button" href="/published.html"><h4>Visit</h4></a>
+       
+     </div>
+
+<!-- Footer -->
+<footer class="w3-center w3-black w3-padding-64">
+  <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+  </div>
+</footer>
+
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+//Open login modal
+function openLoginModal(){
+  document.getElementById("loginModal").style.display="block";
+}
+
+//close login modal
+function closeLoginModal(){
+  document.getElementById("loginModal").style.display="none";
+}
+
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+  } else {
+    mySidebar.style.display = 'block';
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+}
+
+function logout(){
+
+}
+</script>
+<script>
+  fetch ('upload')
+  .then (response => response.json())
+  .then(models=> {
+    const container = document.getElementById('modelsContainer');
+    models.forEach(model => {
+    const frameName = model.frameName;
+    const imageData = model.imageData;
+    const img = document.createElement('img');
+    img.src = imageData;
+    img.alt = frameName;
+    container.appendChild(img);
+  });
+})
+.catch (error => console.error('Error fetching models:', error));
+
+</script>
+</body>
+</html>
